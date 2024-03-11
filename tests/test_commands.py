@@ -2,6 +2,7 @@
 from unittest.mock import patch
 import pytest
 from app import App
+import os
 
 # Helper function to read log file content
 def read_log_file():
@@ -12,9 +13,20 @@ def read_log_file():
 
 # Helper function to clear the log file before each test
 def clear_log_file():
-    """Function to clear the log file"""
-    # pylint: disable=consider-using-with
-    open('logs/app.log', 'w', encoding='utf-8').close()
+    """Function to clear the log file."""
+    log_directory = "logs"
+    log_file_path = os.path.join(log_directory, "app.log")
+
+    # Ensure the directory exists
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+
+    # Ensure the file exists (create it if it doesn't) and then clear the file
+    with open(log_file_path, 'a', encoding='utf-8') as f:
+        pass  # Just to ensure the file is created
+
+    with open(log_file_path, 'w', encoding='utf-8') as f:
+        pass  # Clear the file
 
 @pytest.fixture(autouse=True)
 def run_before_and_after_tests():
