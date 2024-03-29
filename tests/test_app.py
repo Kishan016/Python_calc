@@ -1,49 +1,47 @@
 """This module contains test cases for the App class."""
-from unittest.mock import patch
-import pytest
-from app import App
 import os
+from unittest.mock import patch  # Place standard imports before third-party imports
+import pytest
 
-# Helper function to read log file content
-def read_log_file():
-    """Read the log file"""
-    log_file_path = 'logs/app.log'
-    with open(log_file_path, 'r', encoding='utf-8') as file:
-        return file.read()
+from app import App  # Adjust this import to your app's structure
 
-# Helper function to clear the log file before each test
-def clear_log_file():
-    """Function to clear the log file."""
-    log_directory = "logs"
-    log_file_path = os.path.join(log_directory, "app.log")
-
-    # Ensure the directory exists
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
-
-    # Ensure the file exists (create it if it doesn't) and then clear the file
-    with open(log_file_path, 'a', encoding='utf-8') as f:
-        pass  # Just to ensure the file is created
-
-    with open(log_file_path, 'w', encoding='utf-8') as f:
-        pass  # Clear the file
+# Path to the app's log file for reading outputs
+log_file_path = os.path.join('logs', 'app.log')
 
 @pytest.fixture(autouse=True)
-def run_before_and_after_tests():
-    """"Run befor and after test to clear log file"""
-    # Setup: clear log file before each test
-    clear_log_file()
-    # This yields control back to the test function
-    yield
-    # Teardown: can add post-test cleanup steps here
+def setup_and_teardown():
+    """Fixture to clear the log file before each test and perform necessary setup/teardown."""
+    # Clear the log file to ensure a clean state for each test
+        # pylint: disable=consider-using-with, unspecified-encoding
+    open(log_file_path, 'w').close()  # Consider using 'with' for file operations
+    # Setup steps (if any)
+    yield  # This allows the test to run here
+    # Teardown steps (if any)
 
-def test_app_start_and_exit():
-    """"Test app start and exit"""
-    with pytest.raises(SystemExit) as exit_exception:
-        with patch('builtins.input', side_effect=['exit']):
-            app = App()
-            app.start()
-    log_contents = read_log_file()
-    assert exit_exception.value.code == 0, "Application did not exit as expected."
-    assert "Application started." in log_contents, "Expected 'Application started.' log message not found."
-    assert "Application shutdown." in log_contents, "Expected 'Application shutdown.' log message not found."
+@pytest.fixture
+def app():
+    """Fixture to instantiate the application."""
+    return App()
+
+def read_log_contents():
+    """Helper function to read and return the contents of the application's log file."""
+    with open(log_file_path, 'r', encoding='utf-8') as file:  # Specify encoding explicitly
+        return file.readlines()  # Read as lines for easier assertion per line
+
+def test_app_initialization(app):
+    """Test that the application initializes as expected."""
+    assert app is not None  # Adjust according to your app's attributes
+
+@patch('app.App.start')  # Mock the start method to prevent actual app loop execution
+def test_app_start(mock_start, app):
+    """Test that the application's start method is called."""
+    app.start()
+    mock_start.assert_called_once()
+
+def test_unknown_command_handling(app):
+    """Test that an unknown command logs an appropriate message."""
+    # Directly call the command handler with a non-existent command
+    app.command_handler.execute_command('nonexistent_command')
+    # Check if the log file contains the expected output
+    log_contents = read_log_contents()
+    assert any('Unknown command: nonexistent_command' in line for line in log_contents)

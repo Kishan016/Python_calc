@@ -1,97 +1,138 @@
-"""This is a docstring to test plugin commands"""
+"""This is a docstring to introduce Test-cases for testing commands"""
+import unittest
 from unittest.mock import patch
-import pytest
-from app import App
-import os
+import pandas as pd
+from app.plugins.history_manager import delete_history
+from app.plugins.history_manager import (
+    add_record,
+    clear_history,
+    load_history,
+    save_history
+)
+from app.plugins.add import AddCommand
+from app.plugins.sub import SubCommand
+from app.plugins.multi import MultiCommand
+from app.plugins.div import DivCommand
+from app.plugins.exit import ExitCommand
 
-# Helper function to read log file content
-def read_log_file():
-    """Function to read log file"""
-    log_file_path = 'logs/app.log'
-    with open(log_file_path, 'r', encoding='utf-8') as file:
-        return file.read()
 
-# Helper function to clear the log file before each test
-def clear_log_file():
-    """Function to clear the log file."""
-    log_directory = "logs"
-    log_file_path = os.path.join(log_directory, "app.log")
+class TestHistoryManager(unittest.TestCase):
+    """
+    Test class for history manager.
+    """
 
-    # Ensure the directory exists
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
+    @patch('app.plugins.history_manager.pd.read_csv')
+    def test_load_history(self, mock_read_csv):
+        """
+        Test load_history function.
+        """
+        # Setup the mock to return a specific DataFrame structure
+        mock_read_csv.return_value = pd.DataFrame(columns=['Operation', 'Result'])
+        load_history()
+        mock_read_csv.assert_called_once()
 
-    # Ensure the file exists (create it if it doesn't) and then clear the file
-    with open(log_file_path, 'a', encoding='utf-8') as f:
-        pass  # Just to ensure the file is created
+    @patch('app.plugins.history_manager.pd.DataFrame.to_csv')
+    def test_save_history(self, mock_to_csv):
+        """
+        Test save_history function.
+        """
+        df = pd.DataFrame(columns=['Operation', 'Result'])
+        save_history(df)
+        mock_to_csv.assert_called_once()
 
-    with open(log_file_path, 'w', encoding='utf-8') as f:
-        pass  # Clear the file
+    @patch('app.plugins.history_manager.load_history')
+    @patch('app.plugins.history_manager.save_history')
+    def test_add_record(self, mock_save_history, mock_load_history):
+        """
+        Test add_record function.
+        """
+        mock_load_history.return_value = pd.DataFrame(columns=['Operation', 'Result'])
+        add_record('add 5 3', 8)
+        mock_save_history.assert_called_once()
 
-@pytest.fixture(autouse=True)
-def run_before_and_after_tests():
-    """Fixture to clear log file before each test"""
-    clear_log_file()
-    # This yields control back to the test function
-    yield
-    # Teardown: can add post-test cleanup steps here
+    @patch('app.plugins.history_manager.pd.DataFrame.to_csv')
+    def test_clear_history(self, mock_to_csv):
+        """
+        Test clear_history function.
+        """
+        clear_history()
+        mock_to_csv.assert_called_once()
 
-def test_app_add_command():
-    """Test case for the add command"""
-    inputs = ['add 1 2', 'exit']
-    with patch('builtins.input', side_effect=inputs):
-        app = App()
-        with pytest.raises(SystemExit):
-            app.start()
-    log_contents = read_log_file()
-    assert "Add result: 3" in log_contents, "Expected 'Add result: 3' log message not found."
+    @patch('os.path.exists')  # Patch os.path.exists
+    @patch('os.remove')       # (Keep the patch for os.remove)
+    def test_delete_history_exists(self, mock_remove, mock_exists):
+        """
+        Test delete_history function when file exists.
+        """
+        mock_exists.return_value = True
+        delete_history()
 
-def test_add_command_non_numeric_arguments():
-    """Test case for the add command with non-numeric arguments"""
-    inputs = ['add one two', 'exit']
-    with patch('builtins.input', side_effect=inputs):
-        app = App()
-        with pytest.raises(SystemExit):
-            app.start()
-    log_contents = read_log_file()
-    assert "Add command: Invalid input, expected integers." in log_contents, "The add command should validate numeric arguments"
+    @patch('os.path.exists')
+    def test_delete_history_not_exists(self, mock_exists):
+        """
+        Test delete_history function when file does not exist.
+        """
+        mock_exists.return_value = False
+        delete_history()  # os.remove should not be called, thus no need to mock it here
 
-def test_app_subtract_command():
-    """Test case for the subtract command"""
-    inputs = ['sub 5 2', 'exit']
-    with patch('builtins.input', side_effect=inputs):
-        app = App()
-        with pytest.raises(SystemExit):
-            app.start()
-    log_contents = read_log_file()
-    assert "Sub result: 3" in log_contents, "The subtract command did not produce the expected output"
 
-def test_app_multiply_command():
-    """Test case for the multiply command"""
-    inputs = ['multi 3 4', 'exit']
-    with patch('builtins.input', side_effect=inputs):
-        app = App()
-        with pytest.raises(SystemExit):
-            app.start()
-    log_contents = read_log_file()
-    assert "Multi result: 12" in log_contents, "The multiply command did not produce the expected output"
+class TestCommands(unittest.TestCase):
+    """
+    Test class for commands.
+    """
+    def test_add_command(self):
+        """
+        Test AddCommand class.
+        """
+        command = AddCommand()
+        result = command.execute("5", "3")
+        self.assertEqual(result, 8)
 
-def test_app_divide_command():
-    """Test case for the divide command"""
-    inputs = ['div 8 2', 'exit']
-    with patch('builtins.input', side_effect=inputs):
-        app = App()
-        with pytest.raises(SystemExit):
-            app.start()
-    log_contents = read_log_file()
-    assert "Div result: 4.0" in log_contents, "The divide command did not produce the expected output"
+    def test_sub_command(self):
+        """
+        Test SubCommand class.
+        """
+        command = SubCommand()
+        result = command.execute("5", "3")
+        self.assertEqual(result, 2)
 
-def test_divide_command_div_by_zero():
-    """Test case for the divide command with division by zero"""
-    inputs = ['div 20 0', 'exit']
-    with patch('builtins.input', side_effect=inputs):
-        app = App()
-        with pytest.raises(SystemExit):
-            app.start()
-    log_contents = read_log_file()
-    assert "Div command: Division by zero." in log_contents, "Divide by zero did not produce the expected output"
+    def test_multi_command(self):
+        """
+        Test MultiCommand class.
+        """
+        command = MultiCommand()
+        result = command.execute("5", "3")
+        self.assertEqual(result, 15)
+
+    def test_div_command(self):
+        """
+        Test DivCommand class for division and input validation.
+        """
+        command = DivCommand()
+
+        # Test for successful division
+        self.assertEqual(command.execute("6", "3"), 2)
+
+        # Test for division by zero - expecting ValueError
+        with self.assertRaises(ValueError):
+            command.execute("5", "0")
+
+        # Test for non-numeric input - expecting ValueError
+        with self.assertRaises(ValueError):
+            command.execute("a", "3")
+        with self.assertRaises(ValueError):
+            command.execute("5", "b")
+
+
+    @patch('sys.exit')
+    def test_exit_command(self, mock_exit):
+        """
+        Test ExitCommand class.
+        """
+        exit_command = ExitCommand()
+        exit_command.execute()
+
+        mock_exit.assert_called_once()
+
+if __name__ == '__main__':
+    unittest.main()

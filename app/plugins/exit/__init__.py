@@ -3,11 +3,13 @@ import sys
 from app.commands import Command
 
 class ExitCommand(Command):
-    def execute(self, *args):
-        logging.info("Exit command: Application exit initiated.")
-        print("Exiting application.")
+    def __init__(self):
+        self._should_exit = False
 
-# class ExitCommand(Command):
-#     def execute(self, *args):
-#         logging.info("Exiting...")
-#         sys.exit(0)
+    def execute(self, *args, **kwargs):
+        # Implementation logic for the command
+        self._should_exit = True
+        sys.exit(0)
+
+    def should_exit(self):
+        return self._should_exit

@@ -1,5 +1,6 @@
 import logging
 from app.commands import Command
+from app.plugins.history_manager import add_record
 
 class SubCommand(Command):
     def execute(self, *args):
@@ -8,20 +9,8 @@ class SubCommand(Command):
             result = numbers[0] - sum(numbers[1:])
             logging.info(f"Sub result: {result}")
             print(f"The result is: {result}")
+            add_record(f"sub {' '.join(args)}", result)
         except ValueError:
             logging.error("Sub command: Invalid input, expected integers.")
             print("Error: Invalid input, expected integers.")
-
-
-
-
-# class SubCommand(Command):
-#     def execute(self, *args):
-#         if len(args) != 2:
-#             logging.error("Sub command requires exactly two arguments")
-#             return
-#         try:
-#             result = round(float(args[0]) - float(args[1]), 1)
-#             logging.info(f"Sub result: {result}")
-#         except ValueError:
-#             logging.error("Error: All arguments must be numeric")
+        return result

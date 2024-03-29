@@ -1,20 +1,25 @@
 from abc import ABC, abstractmethod
 import logging
 
-class Command:
+class Command(ABC):
     """
     Base class for all commands.
     Each command should implement the execute method.
     """
+    @abstractmethod
     def execute(self, *args, **kwargs):
-        raise NotImplementedError("This method should be overridden by subclasses.")
+        pass
 
 class CommandHandler:
     def __init__(self):
         self.commands = {}
+        self.logger = logging.getLogger(__name__)  # Updated: Added self.logger initialization
 
     def register_command(self, command_name, command_object):
+        if command_name in self.commands:
+            self.logger.warning(f"Command '{command_name}' is already registered and will be overwritten.")  # Updated: Changed logging.warning to self.logger.warning
         self.commands[command_name] = command_object
+        self.logger.info(f"Command '{command_name}' registered.")  # Updated: Changed logging.info to self.logger.info
 
     def find_command(self, command_name):
         return self.commands.get(command_name)
@@ -28,48 +33,8 @@ class CommandHandler:
         if command:
             try:
                 command.execute(*args)
+                self.logger.info(f"Executed command: {cmd_input}")  # Log command execution with full command input
             except Exception as e:
-                logging.error(f"Error executing command '{command_name}': {e}")
+                self.logger.error(f"Error executing command '{command_name}': {e}")  # Updated: Changed logging.error to self.logger.error
         else:
-            logging.error(f"Unknown command: {command_name}")
-
-
-
-# class Command(ABC):
-#     @abstractmethod
-#     def execute(self, *args):
-#         """
-#         Execute the command with the given arguments.
-
-#         :param args: Arguments passed to the command
-#         """
-#         pass
-
-# class CommandHandler:
-#     def __init__(self):
-#         self.commands = {}
-
-#     def register_command(self, command_name: str, command: Command):
-#         """
-#         Register a command with the command handler.
-
-#         :param command_name: The name of the command
-#         :param command: The command instance
-#         """
-#         self.commands[command_name] = command
-#         logging.info(f"Command '{command_name}' registered.")
-
-#     def execute_command(self, command_name: str, *args):
-#         """
-#         Execute a command by name with the provided arguments.
-
-#         :param command_name: The name of the command to execute
-#         :param args: Arguments to pass to the command
-#         """
-#         try:
-#             logging.info(f"Executing command '{command_name}' with arguments: {args}")
-#             self.commands[command_name].execute(*args)
-#         except KeyError:
-#             logging.error(f"No such command: {command_name}")
-#         except Exception as e:
-#             logging.error(f"Error executing command '{command_name}': {e}")
+            self.logger.error(f"Unknown command: {cmd_input}")  # Log unknown commands with full command input
