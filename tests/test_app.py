@@ -11,12 +11,14 @@ log_file_path = os.path.join('logs', 'app.log')
 @pytest.fixture(autouse=True)
 def setup_and_teardown():
     """Fixture to clear the log file before each test and perform necessary setup/teardown."""
-    # Clear the log file to ensure a clean state for each test
-        # pylint: disable=consider-using-with, unspecified-encoding
-    open(log_file_path, 'w').close()  # Consider using 'with' for file operations
-    # Setup steps (if any)
-    yield  # This allows the test to run here
-    # Teardown steps (if any)
+    log_file_path = 'logs/app.log'
+    
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+    
+    # Clear the log file to ensure a clean state for each test, using 'with' for safer file operations
+    with open(log_file_path, 'w') as file:
+        file.close()
 
 @pytest.fixture
 def app():
