@@ -1,8 +1,8 @@
 """This module contains test cases for the App class."""
 import os
 from unittest.mock import patch  # Place standard imports before third-party imports
+from unittest import TestCase
 import pytest
-
 from app import App  # Adjust this import to your app's structure
 
 # Path to the app's log file for reading outputs
@@ -12,11 +12,10 @@ log_file_path = os.path.join('logs', 'app.log')
 def setup_and_teardown():
     """Fixture to clear the log file before each test and perform necessary setup/teardown."""
     log_file_path = 'logs/app.log'
-    
     # Ensure the directory exists
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-    
     # Clear the log file to ensure a clean state for each test, using 'with' for safer file operations
+    # pylint: disable=consider-using-with, unspecified-encoding
     with open(log_file_path, 'w') as file:
         file.close()
 
@@ -39,6 +38,16 @@ def test_app_start(mock_start, app):
     """Test that the application's start method is called."""
     app.start()
     mock_start.assert_called_once()
+
+class TestAppInitialization(TestCase):
+    """Class for initialization for testcase."""
+    @patch.dict('os.environ', {'ENVIRONMENT': 'TEST'})
+    def test_load_environment_variables(self):
+        """Test environmental variable loading."""
+        app = App()
+        self.assertIn('ENVIRONMENT', app.settings)
+        self.assertEqual(app.settings['ENVIRONMENT'], 'TEST')
+
 
 def test_unknown_command_handling(app):
     """Test that an unknown command logs an appropriate message."""
