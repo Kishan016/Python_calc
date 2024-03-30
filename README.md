@@ -21,7 +21,7 @@
 ### How to Use
 To launch the calculator application, execute:
 ```sh
-python -m app
+python3 main.py
 ```
 Follow the on-screen prompts to perform arithmetic operations, manage your calculation history, or explore extended functionalities offered by plugins.
 
