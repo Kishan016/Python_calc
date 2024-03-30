@@ -43,11 +43,11 @@ This Advanced Calculator is a versatile command-line application designed for pe
 ### Installation
 1. Clone this repository to your local machine:
    ```sh
-   git clone https://github.com/yourusername/advanced-calculator.git
+   git clone https://github.com/k-0016/midterm_calc
    ```
 2. Change to the project directory:
    ```sh
-   cd advanced-calculator
+   cd midterm_calc
    ```
 3. Install the necessary Python packages:
    ```sh
