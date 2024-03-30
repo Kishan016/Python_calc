@@ -1,3 +1,33 @@
+## Getting Started
+
+### Prerequisites
+- Python 3.8 or newer
+- Pandas library
+
+### Installation
+1. Clone this repository to your local machine:
+   ```sh
+   git clone https://github.com/k-0016/midterm_calc
+   ```
+2. Change to the project directory:
+   ```sh
+   cd midterm_calc
+   ```
+3. Install the necessary Python packages:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+### How to Use
+To launch the calculator application, execute:
+```sh
+python -m app
+```
+Follow the on-screen prompts to perform arithmetic operations, manage your calculation history, or explore extended functionalities offered by plugins.
+
+## Architectural Overview
+
+The application is designed with best practices in software architecture, employing various design patterns to ensure code modularity, extensibility, and maintainability. Key architectural decisions include the use of the Facade Pattern to simplify interactions with Pandas, the Command Pattern for a clean command structure, and additional patterns like Factory Method and Singleton for overall architectural integrity.
 
 # Advanced Calculator Application
 
@@ -33,37 +63,6 @@ This Advanced Calculator is a versatile command-line application designed for pe
 
 ### Factory Method, Singleton, and Strategy Patterns
 - These patterns are employed to enhance the application's code structure, flexibility, scalability, and to ensure efficient management of resources and configurations.
-
-## Getting Started
-
-### Prerequisites
-- Python 3.8 or newer
-- Pandas library
-
-### Installation
-1. Clone this repository to your local machine:
-   ```sh
-   git clone https://github.com/k-0016/midterm_calc
-   ```
-2. Change to the project directory:
-   ```sh
-   cd midterm_calc
-   ```
-3. Install the necessary Python packages:
-   ```sh
-   pip install -r requirements.txt
-   ```
-
-### How to Use
-To launch the calculator application, execute:
-```sh
-python -m app
-```
-Follow the on-screen prompts to perform arithmetic operations, manage your calculation history, or explore extended functionalities offered by plugins.
-
-## Architectural Overview
-
-The application is designed with best practices in software architecture, employing various design patterns to ensure code modularity, extensibility, and maintainability. Key architectural decisions include the use of the Facade Pattern to simplify interactions with Pandas, the Command Pattern for a clean command structure, and additional patterns like Factory Method and Singleton for overall architectural integrity.
 
 ## Contributing
 
