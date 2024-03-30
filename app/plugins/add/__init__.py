@@ -4,16 +4,16 @@ from app.plugins.history_manager import add_record  # Import the add_record func
 
 class AddCommand(Command):
     def execute(self, *args):
+        result = None  # Initialize result to ensure it's always defined
         if len(args) != 2:
-            logging.error("Add command: Require exact two arguments.")
-            print("Error: Require exact two arguments.")
-            return
+            logging.error("Add command: Require exactly two arguments.")
+            print("Error: Require exactly two arguments.")
+            return result
         try:
             numbers = list(map(int, args))
             result = sum(numbers)
             logging.info(f"Add result: {result}")
             print(f"The result is: {result}")
-            # Log the operation and its result
             add_record(f"add {' '.join(args)}", result)
         except ValueError:
             logging.error("Add command: Invalid input, expected integers.")

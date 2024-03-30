@@ -4,6 +4,7 @@ from app.plugins.history_manager import add_record
 
 class MultiCommand(Command):
     def execute(self, *args):
+        result = None  # Initialize result early
         try:
             numbers = list(map(int, args))
             result = 1

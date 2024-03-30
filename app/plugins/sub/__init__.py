@@ -4,6 +4,7 @@ from app.plugins.history_manager import add_record
 
 class SubCommand(Command):
     def execute(self, *args):
+        result = None  # Initialize result early
         try:
             numbers = list(map(int, args))
             result = numbers[0] - sum(numbers[1:])
